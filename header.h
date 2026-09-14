@@ -1,5 +1,11 @@
-#ifndef HEADER
-#define HEADER
+//#ifndef HEADER
+//#define HEADER
+
+#include "C:\TX\TXLib.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include <time.h>
+#include <assert.h>
 
 //---------------------------------------------------------------------------------------
 // Colors
@@ -29,4 +35,11 @@
 #define ASSERT(right_instr) do {} while(0)
 #endif
 
-#endif
+//----------------------------------------------------------------------------------------
+//  Functions
+//----------------------------------------------------------------------------------------
+
+void MY_LOGGING(const char * fileName, const char *funcName, unsigned int nLine, const char * format, ...);
+#define LOGGING(format, ...) MY_LOGGING(__FILE__, __PRETTY_FUNCTION__, __LINE__, format, ##__VA_ARGS__)
+
+//#endif

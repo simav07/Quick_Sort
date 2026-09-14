@@ -1,9 +1,3 @@
-#include "C:\TX\TXLib.h"
-#include <stdio.h>
-#include <stdbool.h>
-#include <time.h>
-#include <assert.h>
-
 #define MYDEBUG
 #include "header.h"
 
@@ -67,6 +61,7 @@ int main(int argc, char * argv[]) {
 void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const void* a, const void* b)) {
 
     ASSERT(data);
+    ASSERT(Compare);
     
     COUNT_OF_REPEATS_QUICK++;
 
@@ -81,8 +76,13 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
 
     while (leftIndex <= rightIndex) {
 
+        ASSERT((leftIndex >= firstIndex && leftIndex <= lastIndex));
+        ASSERT((rightIndex >= firstIndex && rightIndex <= lastIndex));
+
         int * leftElem  = data + leftIndex;
         int * rightElem = data + rightIndex;
+
+        ASSERT((leftElem != NULL && rightElem != NULL));
 
         if (Compare((void *)leftElem, (void *)firstElem) > 0) {
             if (Compare((void *)rightElem, (void *)firstElem) < 0) {
@@ -99,6 +99,9 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
             leftIndex++;
         }
     }
+
+    ASSERT((leftIndex >= firstIndex && leftIndex <= lastIndex));
+    ASSERT((rightIndex >= firstIndex && rightIndex <= lastIndex));
 
     ChangeValues(&data[firstIndex], &data[rightIndex]);
     
@@ -160,7 +163,7 @@ void StartTest() {
         COUNT_OF_REPEATS_QUICK  = 0;
         COUNT_OF_REPEATS_BUBBLE = 0;
 
-        int * data_quick = (int *)calloc(N, sizeof(int));
+        int * data_quick =  (int *)calloc(N, sizeof(int));
         int * data_bubble = (int *)calloc(N, sizeof(int));
 
         ASSERT(data_quick);
@@ -243,6 +246,8 @@ void ChangeValues(int * firstElem, int * secondElem) {
 
     ASSERT(firstElem);
     ASSERT(secondElem);
+
+    LOGGING("ћен€ю значени€ %d и %d", *firstElem, *secondElem);
 
     int temp = *firstElem;
     *firstElem = *secondElem;
