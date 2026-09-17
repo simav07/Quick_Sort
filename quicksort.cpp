@@ -1,4 +1,3 @@
-#define MYDEBUG
 #include "header.h"
 
 // Algorithms
@@ -19,6 +18,8 @@ int WriteSortedNumbsFile(const char filename[], int * data, size_t nElems, size_
 // Standard stdout print
 void PrintIntMass(int * data, size_t nElems);
 
+// Debug print
+int PrintColorData(int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems);
 void ChangeValues(int * firstElem, int * secondElem);
 int GetRandomIntNumber();
 
@@ -44,10 +45,11 @@ int main(int argc, char * argv[]) {
     ASSERT(argv);
 
     if ((argc == 2) && strcmp(argv[0], "--test")) {
+        LOGGING("Запущен режим вычисления сложности алгоритмов");
         MakeGraph();
     }
     else {
-        int data[] = {10, 40, 20, 22, 5};
+        int data[] = {40, 20, 30, 50, 80, 70, 10};
         size_t nElems = sizeof(data)/sizeof(data[0]);
 
         QuickSort(data, 0, int(nElems - 1), &CompareUp);
@@ -55,6 +57,7 @@ int main(int argc, char * argv[]) {
         PrintIntMass(data, nElems);
     }
 
+    LOGGING("Программа завершена без ошибок");
     return 0;
 }
 
@@ -68,6 +71,7 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
     if ((rightIndex - leftIndex) < 1)
         return;
 
+    size_t nElems = (rightIndex - leftIndex) + 1;
     int firstIndex = leftIndex;
     int lastIndex  = rightIndex;
     int * firstElem  = data + firstIndex;
@@ -82,12 +86,17 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
         int * leftElem  = data + leftIndex;
         int * rightElem = data + rightIndex;
 
+        PrintColorData(data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+
         ASSERT((leftElem != NULL && rightElem != NULL));
 
         if (Compare((void *)leftElem, (void *)firstElem) > 0) {
             if (Compare((void *)rightElem, (void *)firstElem) < 0) {
 
+                LOGGING("Вызываю ChangeValues и передаю туда первый элемент - %d и второй - %d", data[firstIndex], data[rightIndex]);
                 ChangeValues(&data[leftIndex], &data[rightIndex]);
+                PrintColorData(data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+                LOGGING("Теперь первый - %d, второй - %d", data[leftIndex], data[rightIndex]);
                 leftIndex++;
                 rightIndex--;
             }
@@ -100,13 +109,51 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
         }
     }
 
-    ASSERT((leftIndex >= firstIndex && leftIndex <= lastIndex));
-    ASSERT((rightIndex >= firstIndex && rightIndex <= lastIndex));
-
+    LOGGING("Вызываю ChangeValues и передаю туда первый элемент - %d и второй - %d", data[firstIndex], data[rightIndex]);
+    PrintColorData(data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
     ChangeValues(&data[firstIndex], &data[rightIndex]);
+    PrintColorData(data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+    LOGGING("Теперь первый - %d, второй - %d", data[firstIndex], data[rightIndex]);
     
+    LOGGING("Вызываю QuickSort и передаю туда leftIndex = %d, rightIndex = %d", firstIndex, rightIndex - 1);
     QuickSort(data, firstIndex, rightIndex - 1, Compare);
+    LOGGING("Вызываю QuickSort и передаю туда leftIndex = %d, rightIndex = %d", rightIndex + 1, lastIndex);
     QuickSort(data, rightIndex + 1, lastIndex, Compare);
+}
+
+int PrintColorData(int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems) {
+
+    // Bold Green - first elem for comparison
+    // Cyan       - already sorted on the left side
+    // Bold Cyan  - current left index
+    // Bold Red   - current right index
+    // Red        - already sorted on the right side
+
+    ASSERT(data);
+    ASSERT((nElems > 0));
+    if ((leftIndex >= rightIndex) || (leftIndex < firstIndex) || (rightIndex > lastIndex) || (firstIndex > lastIndex))
+        return 0;
+
+    size_t i = firstIndex;
+    printf(GREEN "%d " RESET, data[i++]);
+
+    while (i < leftIndex) printf(CYAN "%d " RESET, data[i++]);
+        
+    if (i == leftIndex) printf(BOLD_CYAN "%d " RESET, data[i++]);
+    else return 0;
+    
+    while ((i > leftIndex) && (i < rightIndex)) printf("%d ", data[i++]);
+    
+    if (i == rightIndex) printf(BOLD_RED "%d " RESET, data[i++]);
+    else return 0;
+    
+    while ((i <= lastIndex)) {
+        printf(RED "%d " RESET, data[i++]);
+    }
+    printf("\nPlease tap <Enter> to continue\n");
+    char cont_flag = 0;
+    while ((cont_flag = getchar()) != '\n') continue;
+    return 1;
 }
 
 void BubbleSort(int * data, size_t nElems, int (*Compare)(const void* a, const void* b)) {
@@ -206,15 +253,15 @@ int WriteSortedNumbsFile(const char filename[], int * data, size_t nElems, size_
 
     FILE *file_p = fopen(filename, "a");
     if (!file_p) {
-         printf("Error opening file: <%s>\n", filename);
-         return 0;
+        printf("Error opening file: <%s>\n", filename);
+        return 0;
     }
 
     fprintf(file_p, "N = %llu, Repeats = %llu\n", nElems, countOfRepeats);
 
     for (size_t i = 0; i < nElems; i++) {
 
-        fprintf(file_p, "%d ", data[i]);
+     fprintf(file_p, "%d ", data[i]);
     
     }
     fprintf(file_p, "\n");
@@ -222,7 +269,7 @@ int WriteSortedNumbsFile(const char filename[], int * data, size_t nElems, size_
     fclose(file_p);
     return 1;
 }
-
+   
 int MakeGraph() {
 
     system("cls");
@@ -246,8 +293,6 @@ void ChangeValues(int * firstElem, int * secondElem) {
 
     ASSERT(firstElem);
     ASSERT(secondElem);
-
-    LOGGING("Меняю значения %d и %d", *firstElem, *secondElem);
 
     int temp = *firstElem;
     *firstElem = *secondElem;
