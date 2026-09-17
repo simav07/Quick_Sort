@@ -19,7 +19,7 @@ int WriteSortedNumbsFile(const char filename[], int * data, size_t nElems, size_
 void PrintIntMass(int * data, size_t nElems);
 
 // Debug print
-int PrintColorData(int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems);
+int PrintColorData(char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems);
 void ChangeValues(int * firstElem, int * secondElem);
 int GetRandomIntNumber();
 
@@ -86,7 +86,7 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
         int * leftElem  = data + leftIndex;
         int * rightElem = data + rightIndex;
 
-        PrintColorData(data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+        PrintColorData("Checking numbers...", data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
 
         ASSERT((leftElem != NULL && rightElem != NULL));
 
@@ -95,7 +95,7 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
 
                 LOGGING("Вызываю ChangeValues и передаю туда первый элемент - %d и второй - %d", data[firstIndex], data[rightIndex]);
                 ChangeValues(&data[leftIndex], &data[rightIndex]);
-                PrintColorData(data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+                PrintColorData("Elements have been changed", data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
                 LOGGING("Теперь первый - %d, второй - %d", data[leftIndex], data[rightIndex]);
                 leftIndex++;
                 rightIndex--;
@@ -110,9 +110,9 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
     }
 
     LOGGING("Вызываю ChangeValues и передаю туда первый элемент - %d и второй - %d", data[firstIndex], data[rightIndex]);
-    PrintColorData(data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+    PrintColorData("Checking numbers...", data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
     ChangeValues(&data[firstIndex], &data[rightIndex]);
-    PrintColorData(data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+    PrintColorData("Checking numbers...", data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
     LOGGING("Теперь первый - %d, второй - %d", data[firstIndex], data[rightIndex]);
     
     LOGGING("Вызываю QuickSort и передаю туда leftIndex = %d, rightIndex = %d", firstIndex, rightIndex - 1);
@@ -121,7 +121,7 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
     QuickSort(data, rightIndex + 1, lastIndex, Compare);
 }
 
-int PrintColorData(int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems) {
+int PrintColorData(char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems) {
 
     // Bold Green - first elem for comparison
     // Cyan       - already sorted on the left side
@@ -131,28 +131,51 @@ int PrintColorData(int * data, int firstIndex, int lastIndex, int leftIndex, int
 
     ASSERT(data);
     ASSERT((nElems > 0));
-    if ((leftIndex >= rightIndex) || (leftIndex < firstIndex) || (rightIndex > lastIndex) || (firstIndex > lastIndex))
+    // guard
+    if (firstIndex < 0 || (lastIndex - firstIndex) >= (int)nElems || firstIndex > lastIndex || rightIndex <= firstIndex)
         return 0;
-
-    size_t i = firstIndex;
-    printf(GREEN "%d " RESET, data[i++]);
-
-    while (i < leftIndex) printf(CYAN "%d " RESET, data[i++]);
-        
-    if (i == leftIndex) printf(BOLD_CYAN "%d " RESET, data[i++]);
-    else return 0;
     
-    while ((i > leftIndex) && (i < rightIndex)) printf("%d ", data[i++]);
-    
-    if (i == rightIndex) printf(BOLD_RED "%d " RESET, data[i++]);
-    else return 0;
-    
-    while ((i <= lastIndex)) {
-        printf(RED "%d " RESET, data[i++]);
+    printf(BOLD_YELLOW "\n--------------------------------------------------------------------\n" RESET);
+    printf(BOLD_YELLOW ">>>[ %s ]\n\n" RESET, message);
+    for (int c = 0; c < (int)nElems; c++) {
+        if (c == leftIndex && c == rightIndex) printf("[LR]\t");
+        else if (c == leftIndex) printf("[L]\t");
+        else if (c == rightIndex) printf("[R]\t");
+        else printf("---\t");
     }
+    printf("\n");
+    
+    size_t i = firstIndex;
+    
+    printf(GREEN "%3d\t" RESET, data[i++]);
+    
+    while ((int)i < leftIndex && (int)i < rightIndex && (int)i <= lastIndex) {
+        printf(CYAN "%3d\t" RESET, data[i++]);
+    }
+
+    if ((int)i == leftIndex && (int)i <= lastIndex) {
+        if ((int)i == rightIndex) {
+            printf(BOLD_RED "%3d\t" RESET, data[i++]); // Если совпали на N=2/3 - RED
+        } else {
+            printf(BOLD_CYAN "%3d\t" RESET, data[i++]);
+        }
+    }
+    
+    while (((int)i > leftIndex) && ((int)i < rightIndex) && (int)i <= lastIndex) {
+        printf("%3d\t", data[i++]);
+    }
+    
+    if ((int)i == rightIndex && (int)i <= lastIndex) {
+        printf(BOLD_RED "%3d\t" RESET, data[i++]);
+    }
+    
+    while (((int)i <= lastIndex)) {
+        printf(RED "%3d\t" RESET, data[i++]);
+    }
+    printf(YELLOW "\n\n--------------------------------------------------------------------\n" RESET);
     printf("\nPlease tap <Enter> to continue\n");
-    char cont_flag = 0;
-    while ((cont_flag = getchar()) != '\n') continue;
+    int cont_flag = 0;
+    while ((cont_flag = (int)getchar()) != '\n') continue;
     return 1;
 }
 
