@@ -19,7 +19,12 @@ int WriteSortedNumbsFile(const char filename[], int * data, size_t nElems, size_
 void PrintIntMass(int * data, size_t nElems);
 
 // Debug ColoredPrint
+#ifdef MYDEBUG
 int PrintColorData(const char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems);
+#else
+#define PrintColorData(message, data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+#endif
+
 void ChangeValues(int * firstElem, int * secondElem);
 int GetRandomIntNumber();
 
@@ -128,8 +133,8 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
     QuickSort(data, rightIndex + 1, lastIndex, Compare);
 }
 
-int PrintColorData(const char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems) {
 #ifdef MYDEBUG
+int PrintColorData(const char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems) {
     // Bold Green - first elem for comparison
     // Cyan       - already sorted on the left side
     // Bold Cyan  - current left index
@@ -190,10 +195,9 @@ int PrintColorData(const char message[], int * data, int firstIndex, int lastInd
     int cont_flag = 0;
     while ((cont_flag = (int)getchar()) != '\n') continue;
     return 1;
-#else
-    return 0;
+} 
 #endif
-}
+
 
 void BubbleSort(int * data, size_t nElems, int (*Compare)(const void* a, const void* b)) {
 
