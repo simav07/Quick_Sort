@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
-#include <assert.h>
+//#include <assert.h>
 
 //---------------------------------------------------------------------------------------
 // Colors

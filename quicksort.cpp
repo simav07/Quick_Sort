@@ -66,8 +66,6 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
     ASSERT(data);
     ASSERT(Compare);
     
-    COUNT_OF_REPEATS_QUICK++;
-
     if ((rightIndex - leftIndex) < 1)
         return;
 
@@ -90,11 +88,16 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
 
         ASSERT((leftElem != NULL && rightElem != NULL));
 
+        COUNT_OF_REPEATS_QUICK++;
         if (Compare((void *)leftElem, (void *)firstElem) > 0) {
+            COUNT_OF_REPEATS_QUICK++;
             if (Compare((void *)rightElem, (void *)firstElem) < 0) {
 
                 LOGGING("Вызываю ChangeValues и передаю туда первый элемент - %d и второй - %d", data[firstIndex], data[rightIndex]);
+                
                 ChangeValues(&data[leftIndex], &data[rightIndex]);
+                COUNT_OF_REPEATS_QUICK++;
+                
                 PrintColorData("Elements have been changed", data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
                 LOGGING("Теперь первый - %d, второй - %d", data[leftIndex], data[rightIndex]);
                 leftIndex++;
@@ -110,8 +113,12 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
     }
 
     LOGGING("Вызываю ChangeValues и передаю туда первый элемент - %d и второй - %d", data[firstIndex], data[rightIndex]);
+    
     PrintColorData("Checking numbers...", data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
+    
     ChangeValues(&data[firstIndex], &data[rightIndex]);
+    COUNT_OF_REPEATS_QUICK++;
+
     PrintColorData("Checking numbers...", data, firstIndex, lastIndex, leftIndex, rightIndex, nElems);
     LOGGING("Теперь первый - %d, второй - %d", data[firstIndex], data[rightIndex]);
     
@@ -139,6 +146,10 @@ int PrintColorData(const char message[], int * data, int firstIndex, int lastInd
     
     printf(BOLD_YELLOW "\n--------------------------------------------------------------------\n" RESET);
     printf(BOLD_YELLOW ">>>[ %s ]\n\n" RESET, message);
+    for (int c = firstIndex; c < (int)(nElems + firstIndex); c++) {
+        printf("[%d]\t", c);
+    }
+    printf("\n");
     for (int c = firstIndex; c < (int)(nElems + firstIndex); c++) {
         if (c == leftIndex && c == rightIndex) printf("[LR]\t");
         else if (c == leftIndex) printf("[L]\t");
