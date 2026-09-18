@@ -18,8 +18,8 @@ int WriteSortedNumbsFile(const char filename[], int * data, size_t nElems, size_
 // Standard stdout print
 void PrintIntMass(int * data, size_t nElems);
 
-// Debug print
-int PrintColorData(char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems);
+// Debug ColoredPrint
+int PrintColorData(const char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems);
 void ChangeValues(int * firstElem, int * secondElem);
 int GetRandomIntNumber();
 
@@ -49,7 +49,7 @@ int main(int argc, char * argv[]) {
         MakeGraph();
     }
     else {
-        int data[] = {40, 20, 30, 50, 80, 70, 10};
+        int data[] = {40, 20, 30, 50, 70, 80, 10};
         size_t nElems = sizeof(data)/sizeof(data[0]);
 
         QuickSort(data, 0, int(nElems - 1), &CompareUp);
@@ -121,8 +121,8 @@ void QuickSort(int * data, int leftIndex, int rightIndex, int (*Compare)(const v
     QuickSort(data, rightIndex + 1, lastIndex, Compare);
 }
 
-int PrintColorData(char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems) {
-
+int PrintColorData(const char message[], int * data, int firstIndex, int lastIndex, int leftIndex, int rightIndex, size_t nElems) {
+#ifdef MYDEBUG
     // Bold Green - first elem for comparison
     // Cyan       - already sorted on the left side
     // Bold Cyan  - current left index
@@ -132,12 +132,14 @@ int PrintColorData(char message[], int * data, int firstIndex, int lastIndex, in
     ASSERT(data);
     ASSERT((nElems > 0));
     // guard
-    if (firstIndex < 0 || (lastIndex - firstIndex) >= (int)nElems || firstIndex > lastIndex || rightIndex <= firstIndex)
+    if (firstIndex < 0 || (lastIndex - firstIndex) >= (int)nElems || firstIndex > lastIndex || rightIndex <= firstIndex || nElems < 3 || rightIndex > lastIndex)
         return 0;
+    
+    if (leftIndex > rightIndex) ChangeValues(&leftIndex, &rightIndex);
     
     printf(BOLD_YELLOW "\n--------------------------------------------------------------------\n" RESET);
     printf(BOLD_YELLOW ">>>[ %s ]\n\n" RESET, message);
-    for (int c = 0; c < (int)nElems; c++) {
+    for (int c = firstIndex; c < (int)(nElems + firstIndex); c++) {
         if (c == leftIndex && c == rightIndex) printf("[LR]\t");
         else if (c == leftIndex) printf("[L]\t");
         else if (c == rightIndex) printf("[R]\t");
@@ -177,6 +179,9 @@ int PrintColorData(char message[], int * data, int firstIndex, int lastIndex, in
     int cont_flag = 0;
     while ((cont_flag = (int)getchar()) != '\n') continue;
     return 1;
+#else
+    return 0;
+#endif
 }
 
 void BubbleSort(int * data, size_t nElems, int (*Compare)(const void* a, const void* b)) {
